@@ -1,24 +1,40 @@
-# Compiled class file
-*.class
+1 Создать переменные всех пройденных типов данных и инициализировать их значения.
+public class Task1 {
+    public static void main(String[] args) {
 
-# Log file
-*.log
+        byte    byteVar    = 10;
+        short   shortVar   = 1000;
+        int     intVar     = 100_000;
+        long    longVar    = 5_000_000_000;
 
-# BlueJ files
-*.ctxt
+        float   floatVar   = 3.14f;
+        double  doubleVar  = 3.14159;
+    
+    char    charVar    = 'A';
+        boolean booleanVar = true;
+    
+    String  stringVar  = "Привет";
+    }
+}
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+2 Написать метод, которому в качестве параметра передается строка, обозначающая имя. Метод должен вывести в консоль сообщение «Привет, указанное_имя!».
+public static void sayHello(String name) {
+    System.out.println("Привет, " + name + "!");
+}
+3 Написать метод, которому в качестве параметра передается целое число. Метод должен вернуть true, если число отрицательное, и вернуть false если положительное.
+public static boolean isNegative(int number) {
+    return number < 0;
+}
+4 Написать метод, которому в качестве параметра передается целое число, метод должен напечатать в консоль, положительное ли число передали или отрицательное.
+public static void printSign(int number) {
+    if (number < 0)       System.out.println("Отрицательное");
+    else if (number > 0)  System.out.println("Положительное");
+    else                  System.out.println("Ноль");
+}
+5 Написать метод, который выводит последовательность чисел от 1000 до 0, кратных 3
+public static void printMultiplesOfThree() {
+    for (int i = 1000; i >= 0; i--) {
+        if (i % 3 == 0) System.out.print(i + " ");
+    }
+    System.out.println();
+}
