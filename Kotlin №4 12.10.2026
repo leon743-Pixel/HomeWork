@@ -1,0 +1,100 @@
+// Класс книги: название, автор, рейтинг (0..5)
+class Book {
+    var title: String = ""
+    var author: String = ""
+    var rating: Double = 0.0
+
+    // Метод для красивого вывода одной книги
+    fun printInfo() {
+        println("Книга: \"$title\" | Автор: $author | Рейтинг: $rating")
+    }
+}
+
+fun main() {
+    // Коллекция книг — изменяемый список
+    val library = mutableListOf<Book>()
+
+    // ---------- 1. ДОБАВЛЕНИЕ КНИГИ через apply ----------
+    // apply возвращает сам объект, поэтому мы сразу кладём его в список
+    library.add(
+        Book().apply {
+            title = "Мастер и Маргарита"
+            author = "Михаил Булгаков"
+            rating = 4.9
+        }
+    )
+
+    library.add(
+        Book().apply {
+            title = "Преступление и наказание"
+            author = "Фёдор Достоевский"
+            rating = 4.7
+        }
+    )
+
+    library.add(
+        Book().apply {
+            title = "Война и мир"
+            author = "Лев Толстой"
+            rating = 4.5
+        }
+    )
+
+    library.add(
+        Book().apply {
+            title = "1984"
+            author = "Джордж Оруэлл"
+            rating = 4.8
+        }
+    )
+
+    println("=== Каталог после добавления ===")
+    library.forEach { it.printInfo() }
+
+    // ---------- 2. ПОИСК КНИГИ по названию (find / filter) ----------
+    val searchTitle = "1984"
+
+    // find возвращает первый подходящий элемент или null
+    val foundBook = library.find { it.title.equals(searchTitle, ignoreCase = true) }
+
+    // let используется для безопасной работы с найденной книгой
+    foundBook?.let {
+        println("\n=== Результат поиска ===")
+        println("Найдена книга: \"${it.title}\" (${it.author}), рейтинг ${it.rating}")
+    } ?: println("\nКнига \"$searchTitle\" не найдена")
+
+    // Пример с filter: найти все книги с рейтингом выше 4.6
+    println("\n=== Книги с рейтингом выше 4.6 ===")
+    library.filter { it.rating > 4.6 }.forEach { it.printInfo() }
+
+    // ---------- 3. УДАЛЕНИЕ КНИГИ через also ----------
+    val titleToRemove = "Война и мир"
+
+    // Находим книгу, затем с помощью also удаляем её из списка
+    // also хорош тем, что даёт ссылку на объект (it) и возвращает его же
+    library.find { it.title == titleToRemove }?.also { book ->
+        println("\n=== Удаление книги ===")
+        println("Удаляем: \"${book.title}\" (${book.author})")
+        library.remove(book)
+    } ?: println("\nКнига \"$titleToRemove\" для удаления не найдена")
+
+    println("\n=== Каталог после удаления ===")
+    library.forEach { it.printInfo() }
+
+    // ---------- 4. ПЕЧАТЬ КАТАЛОГА через run ----------
+    // run возвращает результат лямбды; здесь — количество напечатанных книг
+    val printedCount = library.run {
+        println("\n=== Печать каталога (run) ===")
+        forEach { it.printInfo() }
+        size // результат лямбды
+    }
+    println("Всего напечатано книг: $printedCount")
+
+    // ---------- 5. СРЕДНИЙ РЕЙТИНГ через with ----------
+    // with принимает объект как аргумент, внутри доступен как this
+    val averageRating = with(library) {
+        if (isEmpty()) 0.0 else sumOf { it.rating } / size
+    }
+    println("\n=== Статистика ===")
+    println("Средний рейтинг всех книг: ${"%.2f".format(averageRating)}")
+}
