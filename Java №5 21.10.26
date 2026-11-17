@@ -1,0 +1,109 @@
+// Задание 1 //
+public class ArraySwap {
+
+    // Обобщённый метод: T — любой ссылочный тип
+    public static <T> void swap(T[] array, int index1, int index2) {
+        // Проверяем, что индексы в допустимых пределах
+        if (index1 < 0 || index1 >= array.length ||
+            index2 < 0 || index2 >= array.length) {
+            System.out.println("Ошибка: неверный индекс");
+            return;
+        }
+
+        // Меняем элементы местами через временную переменную
+        T temp = array[index1];
+        array[index1] = array[index2];
+        array[index2] = temp;
+    }
+
+    public static void main(String[] args) {
+        // Пример 1: массив строк
+        String[] words = {"яблоко", "банан", "вишня", "груша"};
+        System.out.println("До:    " + String.join(", ", words));
+        swap(words, 0, 3);
+        System.out.println("После: " + String.join(", ", words));
+
+        // Пример 2: массив чисел (Integer — ссылочный тип)
+        Integer[] numbers = {10, 20, 30, 40, 50};
+        System.out.println("\nДо:    " + java.util.Arrays.toString(numbers));
+        swap(numbers, 1, 4);
+        System.out.println("После: " + java.util.Arrays.toString(numbers));
+
+        // Пример 3: массив дробных чисел (Float)
+        Float[] floats = {1.5f, 2.5f, 3.5f};
+        System.out.println("\nДо:    " + java.util.Arrays.toString(floats));
+        swap(floats, 0, 2);
+        System.out.println("После: " + java.util.Arrays.toString(floats));
+    }
+}
+
+// Задание2 //
+
+public class Box<T1, T2, T3> {
+    private T1 value1;
+    private T2 value2;
+    private T3 value3;
+
+    public Box(T1 value1, T2 value2, T3 value3) {
+        this.value1 = value1;
+        this.value2 = value2;
+        this.value3 = value3;
+    }
+
+    // Пытаемся преобразовать любое значение в число (double)
+    private double toNumber(Object value) {
+        if (value == null) return 0;
+
+        // Если это уже число — возвращаем его
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+
+        // Если это строка — пробуем распарсить
+        if (value instanceof String) {
+            try {
+                return Double.parseDouble((String) value);
+            } catch (NumberFormatException e) {
+                return 0; // не число — считаем 0
+            }
+        }
+
+        return 0; // другие типы не поддерживаем
+    }
+
+    // Сумма всех трёх значений, приведённых к числу
+    public double sum() {
+        return toNumber(value1) + toNumber(value2) + toNumber(value3);
+    }
+
+    @Override
+    public String toString() {
+        return "Box{" + value1 + ", " + value2 + ", " + value3 + "}";
+    }
+}
+
+
+public class BoxDemo {
+    public static void main(String[] args) {
+        // Коробка 1: String, String, String
+        // (строки, которые можно превратить в числа)
+        Box<String, String, String> stringBox =
+                new Box<>("10", "20.5", "30");
+
+        // Коробка 2: Integer, Integer, Integer
+        Box<Integer, Integer, Integer> intBox =
+                new Box<>(100, 200, 300);
+
+        // Коробка 3: Float, Float, Float
+        Box<Float, Float, Float> floatBox =
+                new Box<>(1.5f, 2.5f, 3.5f);
+
+        System.out.println("StringBox: " + stringBox + " -> сумма: " + stringBox.sum());
+        System.out.println("IntBox:    " + intBox + " -> сумма: " + intBox.sum());
+        System.out.println("FloatBox:  " + floatBox + " -> сумма: " + floatBox.sum());
+
+        // Общая сумма по всем коробкам
+        double total = stringBox.sum() + intBox.sum() + floatBox.sum();
+        System.out.println("\nОбщая сумма по всем коробкам: " + total);
+    }
+}
