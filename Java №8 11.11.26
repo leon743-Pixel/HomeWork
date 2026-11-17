@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="#F5F7FA"
+    tools:context=".MainActivity">
+
+    <!-- Заголовок -->
+    <TextView
+        android:id="@+id/textViewLoginTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Вход в приложение"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#1A1A1A"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewLoginSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Введите логин и пароль"
+        android:textSize="14sp"
+        android:textColor="#6B7280"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/textViewLoginTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Поле логина -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:hint="Логин"
+        app:layout_constraintTop_toBottomOf="@id/textViewLoginSubtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Поле пароля с "глазиком" -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Пароль"
+        app:endIconMode="password_toggle"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayoutLogin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Кнопка авторизации -->
+    <Button
+        android:id="@+id/buttonLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Войти"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayoutPassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Текст результата -->
+    <TextView
+        android:id="@+id/textViewLoginResult"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        app:layout_constraintTop_toBottomOf="@id/buttonLogin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+package com.example.loginapp;
+
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+public class MainActivity extends AppCompatActivity {
+
+    // Ключи для сохранения состояния
+    private static final String KEY_LOGIN = "key_login";
+    private static final String KEY_PASSWORD = "key_password";
+
+    private TextInputLayout textInputLayoutLogin;
+    private TextInputLayout textInputLayoutPassword;
+    private TextInputEditText editTextLogin;
+    private TextInputEditText editTextPassword;
+    private Button buttonLogin;
+    private TextView textViewLoginResult;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Находим элементы
+        textInputLayoutLogin = findViewById(R.id.textInputLayoutLogin);
+        textInputLayoutPassword = findViewById(R.id.textInputLayoutPassword);
+        editTextLogin = findViewById(R.id.editTextLogin);
+        editTextPassword = findViewById(R.id.editTextPassword);
+        buttonLogin = findViewById(R.id.buttonLogin);
+        textViewLoginResult = findViewById(R.id.textViewLoginResult);
+
+        // Восстанавливаем введённые данные после поворота экрана
+        if (savedInstanceState != null) {
+            String savedLogin = savedInstanceState.getString(KEY_LOGIN);
+            String savedPassword = savedInstanceState.getString(KEY_PASSWORD);
+
+            if (savedLogin != null) {
+                editTextLogin.setText(savedLogin);
+            }
+            if (savedPassword != null) {
+                editTextPassword.setText(savedPassword);
+            }
+        }
+
+        // Обработка нажатия на кнопку
+        buttonLogin.setOnClickListener(v -> {
+            String login = editTextLogin.getText() != null
+                    ? editTextLogin.getText().toString().trim()
+                    : "";
+            String password = editTextPassword.getText() != null
+                    ? editTextPassword.getText().toString()
+                    : "";
+
+            // Проверки
+            if (login.isEmpty()) {
+                textInputLayoutLogin.setError("Введите логин");
+                return;
+            } else {
+                textInputLayoutLogin.setError(null);
+            }
+
+            if (password.isEmpty()) {
+                textInputLayoutPassword.setError("Введите пароль");
+                return;
+            } else {
+                textInputLayoutPassword.setError(null);
+            }
+
+            // Простая "авторизация" (заглушка)
+            if (login.equals("admin") && password.equals("1234")) {
+                textViewLoginResult.setText("Успешный вход! Добро пожаловать, " + login);
+                Toast.makeText(this, "Авторизация успешна", Toast.LENGTH_SHORT).show();
+            } else {
+                textViewLoginResult.setText("Неверный логин или пароль");
+                Toast.makeText(this, "Ошибка авторизации", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Вызывается перед уничтожением Activity (например, при повороте экрана).
+     * Сохраняем введённые логин и пароль в Bundle.
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        String login = editTextLogin.getText() != null
+                ? editTextLogin.getText().toString()
+                : "";
+        String password = editTextPassword.getText() != null
+                ? editTextPassword.getText().toString()
+                : "";
+
+        outState.putString(KEY_LOGIN, login);
+        outState.putString(KEY_PASSWORD, password);
+    }
+}
