@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Основные цвета: глубокий графит + бирюзовый акцент -->
+    <color name="colorPrimary">#1F2937</color>          <!-- тёмно-графитовый -->
+    <color name="colorPrimaryVariant">#111827</color>   <!-- почти чёрный -->
+    <color name="colorOnPrimary">#F9FAFB</color>        <!-- светлый текст на тёмном -->
+
+    <!-- Акцент: бирюзовый (для кнопок, переключателей, FAB) -->
+    <color name="colorSecondary">#14B8A6</color>
+    <color name="colorSecondaryVariant">#0F766E</color>
+    <color name="colorOnSecondary">#04201C</color>      <!-- тёмный текст на бирюзовом -->
+
+    <!-- Фон и поверхности -->
+    <color name="colorBackground">#0B1220</color>        <!-- очень тёмный сине-серый -->
+    <color name="colorSurface">#151E2E</color>           <!-- поверхность карточек -->
+    <color name="colorOnBackground">#E5E7EB</color>      <!-- светлый текст -->
+    <color name="colorOnSurface">#E5E7EB</color>
+
+    <!-- Карточки и второстепенный текст -->
+    <color name="colorCardBackground">#151E2E</color>
+    <color name="colorTextSecondary">#9CA3AF</color>
+
+    <!-- Ошибки -->
+    <color name="colorError">#F87171</color>
+    <color name="colorOnError">#1A0000</color>
+</resources>
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.SmartHome" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Основные цвета -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+
+        <!-- Акцент -->
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+
+        <!-- Фон и поверхности -->
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+
+        <!-- Ошибки -->
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+
+        <!-- Статус-бар и навигация — тёмные -->
+        <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryVariant</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Скругления -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.SmartHome.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.SmartHome.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.SmartHome.Large</item>
+    </style>
+
+    <!-- Скругления -->
+    <style name="ShapeAppearance.SmartHome.Small" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    <style name="ShapeAppearance.SmartHome.Medium" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="ShapeAppearance.SmartHome.Large" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <!-- Стиль кнопок -->
+    <style name="Widget.SmartHome.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="backgroundTint">@color/colorSecondary</item>
+        <item name="android:textColor">@color/colorOnSecondary</item>
+    </style>
+
+    <!-- Стиль карточек -->
+    <style name="Widget.SmartHome.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/colorCardBackground</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">4dp</item>
+    </style>
+
+</resources>
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SmartHome" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+
+        <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryVariant</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
+
+
+
+
+<application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/Theme.SmartHome">
+
+    <activity
+        android:name=".MainActivity"
+        android:exported="true"
+        android:screenOrientation="landscape">   <!-- ландшафт, см. Часть 2 -->
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+</application>
+
+
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Кондиционер"
+    android:textColor="?attr/colorOnBackground" />
+
+<Button
+    style="@style/Widget.SmartHome.Button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Включить" />
+
+<com.google.android.material.card.MaterialCardView
+    style="@style/Widget.SmartHome.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <!-- содержимое карточки -->
+</com.google.android.material.card.MaterialCardView>
