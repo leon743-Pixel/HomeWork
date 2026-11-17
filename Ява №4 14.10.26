@@ -1,0 +1,44 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordsTask {
+    public static void main(String[] args) {
+        // 1. Создаём массив со словами (10-20 слов, есть повторяющиеся)
+        String[] words = {
+                "кот", "собака", "кот", "птица", "рыба",
+                "собака", "кот", "хомяк", "птица", "рыба",
+                "кот", "черепаха", "собака", "птица", "хомяк"
+        };
+
+        // 2. Создаём ArrayList и добавляем в него все слова из массива
+        ArrayList<String> wordList = new ArrayList<>(Arrays.asList(words));
+
+        // 3. Находим уникальные слова с помощью HashMap
+        //    Ключ — слово, значение — сколько раз оно встречается
+        HashMap<String, Integer> wordCount = new HashMap<>();
+
+        for (String word : wordList) {
+            if (wordCount.containsKey(word)) {
+                // Слово уже есть — увеличиваем счётчик на 1
+                wordCount.put(word, wordCount.get(word) + 1);
+            } else {
+                // Слова ещё нет — добавляем со значением 1
+                wordCount.put(word, 1);
+            }
+        }
+
+        // 4. Выводим список уникальных слов (ключи HashMap)
+        System.out.println("Уникальные слова:");
+        for (String uniqueWord : wordCount.keySet()) {
+            System.out.println("  " + uniqueWord);
+        }
+
+        // 5. Выводим, сколько раз встречается каждое слово
+        System.out.println("\nКоличество повторений:");
+        for (Map.Entry<String, Integer> entry : wordCount.entrySet()) {
+            System.out.println("  " + entry.getKey() + " — " + entry.getValue() + " раз");
+        }
+    }
+}
