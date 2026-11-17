@@ -1,0 +1,116 @@
+//Класс Cat //
+
+public class Cat extends Animal {
+    private static int catCount = 0;
+
+    private static final int MAX_RUN = 200; // ограничение бега
+
+    public Cat(String name) {
+        super(name); // вызываем конструктор родителя — он сохранит кличку и увеличит общий счётчик
+        catCount++;  // увеличиваем счётчик именно котов
+    }
+
+    public static int getCatCount() {
+        return catCount;
+    }
+
+    @Override
+    public void run(int distance) {
+        if (distance <= MAX_RUN) {
+            System.out.println(getName() + " пробежал " + distance + " м.");
+        } else {
+            System.out.println(getName() + " не может пробежать " + distance + " м. (максимум " + MAX_RUN + " м.)");
+        }
+    }
+
+    @Override
+    public void swim(int distance) {
+        // Коты не умеют плавать
+        System.out.println(getName() + " не умеет плавать.");
+    }
+
+    @Override
+    public boolean canSwim() {
+        return false;
+    }
+}
+
+
+//Класс Dog//
+
+public class Dog extends Animal {
+    private static int dogCount = 0;
+
+    private static final int MAX_RUN = 500;
+    private static final int MAX_SWIM = 10;
+
+    public Dog(String name) {
+        super(name);
+        dogCount++;
+    }
+
+    public static int getDogCount() {
+        return dogCount;
+    }
+
+    @Override
+    public void run(int distance) {
+        if (distance <= MAX_RUN) {
+            System.out.println(getName() + " пробежал " + distance + " м.");
+        } else {
+            System.out.println(getName() + " не может пробежать " + distance + " м. (максимум " + MAX_RUN + " м.)");
+        }
+    }
+
+    @Override
+    public void swim(int distance) {
+        if (distance <= MAX_SWIM) {
+            System.out.println(getName() + " проплыл " + distance + " м.");
+        } else {
+            System.out.println(getName() + " не может проплыть " + distance + " м. (максимум " + MAX_SWIM + " м.)");
+        }
+    }
+
+    @Override
+    public boolean canSwim() {
+        return true;
+    }
+}
+
+
+//Главный класс Main (массив из 7 животных)//
+
+public class Main {
+    public static void main(String[] args) {
+        // Создаём массив из 7 животных
+        Animal[] animals = new Animal[]{
+                new Cat("Мурзик"),
+                new Dog("Бобик"),
+                new Cat("Барсик"),
+                new Dog("Шарик"),
+                new Cat("Васька"),
+                new Dog("Тузик"),
+                new Cat("Снежок")
+        };
+
+        System.out.println("=== Проверка бега ===");
+        animals[0].run(150);   // Мурзик пробежал 150 м.
+        animals[1].run(600);   // Бобик не может пробежать 600 м. (максимум 500 м.)
+        animals[2].run(200);   // Барсик пробежал 200 м.
+        animals[3].run(500);   // Шарик пробежал 500 м.
+
+        System.out.println();
+        System.out.println("=== Плавают только те, кто умеет ===");
+        for (Animal animal : animals) {
+            if (animal.canSwim()) {
+                animal.swim(5);
+            }
+        }
+
+        System.out.println();
+        System.out.println("=== Подсчёт созданных ===");
+        System.out.println("Животных всего: " + Animal.getAnimalCount());
+        System.out.println("Котов: " + Cat.getCatCount());
+        System.out.println("Собак: " + Dog.getDogCount());
+    }
+}
