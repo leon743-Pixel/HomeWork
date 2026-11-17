@@ -1,0 +1,27 @@
+class Box<T1, T2, T3>(
+    val value1: T1,
+    val value2: T2,
+    val value3: T3
+) {
+    override fun toString(): String =
+        "Box(value1=$value1, value2=$value2, value3=$value3)"
+}
+
+fun main() {
+    // 3 коробки с разными типами
+    val stringBox = Box("Строка", "Ещё строка", "Третья строка")   // Box<String, String, String>
+    val intBox    = Box(10, 20, 30)                                 // Box<Int, Int, Int>
+    val floatBox  = Box(1.5f, 2.5f, 3.5f)                           // Box<Float, Float, Float>
+
+    println(stringBox)
+    println(intBox)
+    println(floatBox)
+
+    // Сумма чисел из числовых коробок
+    val intSum = intBox.value1 + intBox.value2 + intBox.value3
+    val floatSum = floatBox.value1 + floatBox.value2 + floatBox.value3
+
+    println("Сумма Int: $intSum")
+    println("Сумма Float: $floatSum")
+    println("Общая сумма: ${intSum + floatSum}")
+}
