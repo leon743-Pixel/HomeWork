@@ -1,0 +1,177 @@
+dependencies {
+    // ... уже существующие
+    val nav_version = "2.7.7"
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+}
+
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/formFragment">
+
+    <fragment
+        android:id="@+id/formFragment"
+        android:name="com.example.myapp.FormFragment"
+        android:label="Форма">
+        <action
+            android:id="@+id/action_form_to_profile"
+            app:destination="@id/profileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.myapp.ProfileFragment"
+        android:label="Профиль" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.myapp.SettingsFragment"
+        android:label="Настройки" />
+</navigation>
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/formFragment"
+        android:icon="@drawable/ic_form"
+        android:title="Форма" />
+
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile"
+        android:title="Профиль" />
+
+    <item
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/ic_settings"
+        android:title="Настройки" />
+</menu>
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_menu" />
+</LinearLayout>
+
+
+package com.example.myapp
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import com.example.myapp.databinding.ActivityMainBinding
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Находим NavController у NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        // Связываем BottomNavigationView с NavController:
+        // клик по пункту меню -> навигация, выбранный пункт подсвечивается автоматически
+        binding.bottomNav.setupWithNavController(navController)
+    }
+}
+
+
+class FormFragment : Fragment() {
+    private var _binding: FragmentFormBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFormBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.submitButton.setOnClickListener {
+            val name = binding.nameField.editText?.text.toString()
+            // Пример программной навигации на второй экран
+            // (если хотите после отправки формы переходить в профиль):
+            findNavController().navigate(R.id.action_form_to_profile)
+            // или просто показать результат:
+            binding.resultText.text = "Привет, $name"
+        }
+    }
+
+    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+}
+
+package com.example.myapp
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.example.myapp.databinding.FragmentProfileBinding
+
+class ProfileFragment : Fragment() {
+
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.profileText.text = "Это экран профиля"
+    }
+
+    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+}
+
+
+// по action из графа (типобезопасно относительно графа):
+findNavController().navigate(R.id.action_form_to_profile)
+
+// по id destination:
+findNavController().navigate(R.id.settingsFragment)
+
+// назад:
+findNavController().navigateUp()
+// или requireActivity().onBackPressedDispatcher.onBackPressed()
+
+
