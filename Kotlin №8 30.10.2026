@@ -1,0 +1,347 @@
+package com.example.myapp
+
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.myapp.databinding.FragmentFormBinding
+
+class FormFragment : Fragment() {
+
+    private var _binding: FragmentFormBinding? = null
+    private val binding get() = _binding!!
+
+    companion object {
+        private const val PREFS_NAME = "auth_prefs"
+        private const val KEY_LOGIN = "login"
+        private const val KEY_PASSWORD = "password"
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFormBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Автозаполнение ранее сохранённых значений
+        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        binding.nameField.editText?.setText(prefs.getString(KEY_LOGIN, ""))
+        binding.passwordField.editText?.setText(prefs.getString(KEY_PASSWORD, ""))
+
+        binding.submitButton.setOnClickListener {
+            val login = binding.nameField.editText?.text.toString().trim()
+            val password = binding.passwordField.editText?.text.toString()
+
+            if (login.isEmpty() || password.isEmpty()) {
+                Toast.makeText(requireContext(), "Введите логин и пароль", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // СОХРАНЕНИЕ в SharedPreferences
+            prefs.edit()
+                .putString(KEY_LOGIN, login)
+                .putString(KEY_PASSWORD, password)   // в реальном проекте — хэш!
+                .apply()                              // apply() асинхронный, commit() — синхронный
+
+            Toast.makeText(requireContext(), "Сохранено", Toast.LENGTH_SHORT).show()
+
+            // Переход на экран теста
+            findNavController().navigate(R.id.action_form_to_profile)
+        }
+    }
+
+    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+}
+
+
+
+package com.example.myapp
+
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+/** Модель вопроса */
+data class Question(
+    val id: Long,
+    val text: String,
+    val options: List<String>,
+    val correctIndex: Int
+)
+
+class QuizDbHelper(context: Context) :
+    SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+
+    companion object {
+        private const val DB_NAME = "quiz.db"
+        private const val DB_VERSION = 1
+
+        const val TABLE_QUESTIONS = "questions"
+        const val COL_ID = "_id"
+        const val COL_TEXT = "text"
+        const val COL_OPT1 = "option1"
+        const val COL_OPT2 = "option2"
+        const val COL_OPT3 = "option3"
+        const val COL_CORRECT = "correct_index"
+    }
+
+    override fun onCreate(db: SQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE $TABLE_QUESTIONS (
+                $COL_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COL_TEXT TEXT NOT NULL,
+                $COL_OPT1 TEXT NOT NULL,
+                $COL_OPT2 TEXT NOT NULL,
+                $COL_OPT3 TEXT NOT NULL,
+                $COL_CORRECT INTEGER NOT NULL
+            )
+            """.trimIndent()
+        )
+
+        // Заполняем 5 вопросов
+        val questions = listOf(
+            arrayOf("Столица России?", "Москва", "Санкт-Петербург", "Новосибирск", 0),
+            arrayOf("2 + 2 = ?", "3", "4", "5", 1),
+            arrayOf("Язык программирования для Android?", "Swift", "Kotlin", "PHP", 1),
+            arrayOf("Сколько дней в неделе?", "5", "6", "7", 2),
+            arrayOf("Какой год начала Второй мировой?", "1914", "1939", "1945", 1),
+            arrayOf("Главная библиотека Android UI на XML?", "Material", "Bootstrap", "UIKit", 0)
+        )
+
+        questions.forEach { q ->
+            db.execSQL(
+                "INSERT INTO $TABLE_QUESTIONS ($COL_TEXT, $COL_OPT1, $COL_OPT2, $COL_OPT3, $COL_CORRECT) " +
+                        "VALUES (?, ?, ?, ?, ?)",
+                arrayOf(q[0], q[1], q[2], q[3], q[4])
+            )
+        }
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_QUESTIONS")
+        onCreate(db)
+    }
+
+    /** Загружает все вопросы из базы */
+    fun getAllQuestions(): List<Question> {
+        val result = mutableListOf<Question>()
+        readableDatabase.rawQuery("SELECT * FROM $TABLE_QUESTIONS ORDER BY $COL_ID", null).use { c ->
+            while (c.moveToNext()) {
+                result += Question(
+                    id = c.getLong(c.getColumnIndexOrThrow(COL_ID)),
+                    text = c.getString(c.getColumnIndexOrThrow(COL_TEXT)),
+                    options = listOf(
+                        c.getString(c.getColumnIndexOrThrow(COL_OPT1)),
+                        c.getString(c.getColumnIndexOrThrow(COL_OPT2)),
+                        c.getString(c.getColumnIndexOrThrow(COL_OPT3))
+                    ),
+                    correctIndex = c.getInt(c.getColumnIndexOrThrow(COL_CORRECT))
+                )
+            }
+        }
+        return result
+    }
+}
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/questionCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:text="Вопрос 1 из 5" />
+
+    <TextView
+        android:id="@+id/questionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/option1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/option2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/option3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/scoreText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+</LinearLayout>
+
+
+
+package com.example.myapp
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.myapp.databinding.FragmentProfileBinding
+
+class ProfileFragment : Fragment() {
+
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var questions: List<Question>
+    private var currentIndex = 0
+    private var correctAnswers = 0
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Загружаем вопросы из SQLite
+        questions = QuizDbHelper(requireContext()).getAllQuestions()
+
+        // Клики по вариантам ответа
+        binding.option1.setOnClickListener { onAnswerSelected(0) }
+        binding.option2.setOnClickListener { onAnswerSelected(1) }
+        binding.option3.setOnClickListener { onAnswerSelected(2) }
+
+        showQuestion()
+    }
+
+    private fun showQuestion() {
+        if (currentIndex >= questions.size) {
+            finishQuiz()
+            return
+        }
+
+        val q = questions[currentIndex]
+        binding.questionCounter.text = "Вопрос ${currentIndex + 1} из ${questions.size}"
+        binding.questionText.text = q.text
+        binding.option1.text = q.options[0]
+        binding.option2.text = q.options[1]
+        binding.option3.text = q.options[2]
+        binding.scoreText.text = "Правильных: $correctAnswers"
+
+        // Сбросить disabled, если был заблокирован
+        listOf(binding.option1, binding.option2, binding.option3).forEach { it.isEnabled = true }
+    }
+
+    private fun onAnswerSelected(index: Int) {
+        val q = questions[currentIndex]
+
+        // Блокируем кнопки от повторного нажатия
+        listOf(binding.option1, binding.option2, binding.option3).forEach { it.isEnabled = false }
+
+        if (index == q.correctIndex) correctAnswers++
+
+        binding.scoreText.text = "Правильных: $correctAnswers"
+
+        // Небольшая задержка, чтобы пользователь увидел выбор
+        binding.root.postDelayed({
+            currentIndex++
+            showQuestion()
+        }, 250L)
+    }
+
+    private fun finishQuiz() {
+        // Переход на 3-й экран (Настройки) с передачей результата
+        val bundle = Bundle().apply {
+            putInt("correct", correctAnswers)
+            putInt("total", questions.size)
+        }
+        findNavController().navigate(R.id.settingsFragment, bundle)
+    }
+
+    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+}
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/resultTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+        android:text="Результат" />
+
+    <TextView
+        android:id="@+id/resultText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+</LinearLayout>
+
+
+package com.example.myapp
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.example.myapp.databinding.FragmentSettingsBinding
+
+class SettingsFragment : Fragment() {
+
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val correct = arguments?.getInt("correct", 0) ?: 0
+        val total = arguments?.getInt("total", 0) ?: 0
+
+        binding.resultText.text = "Правильных ответов: $correct из $total"
+    }
+
+    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+}
