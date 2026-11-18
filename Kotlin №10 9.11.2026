@@ -1,0 +1,121 @@
+//   СИСТЕМА УПРАВЛЕНИЯ БИБЛИОТЕКОЙ НА KOTLIN (делегирование)
+
+// Модель книги
+data class Book(
+    val id: Int,
+    val title: String,
+    val author: String,
+    var isAvailable: Boolean = true
+)
+
+// Каталог 
+interface Catalog {
+    fun addBook(book: Book): Boolean
+    fun findBook(id: Int): Book?
+    fun allBooks(): List<Book>
+}
+
+class InMemoryCatalog : Catalog {
+    private val books = mutableMapOf<Int, Book>()
+    override fun addBook(book: Book): Boolean {
+        if (books.containsKey(book.id)) return false
+        books[book.id] = book
+        return true
+    }
+    override fun findBook(id: Int): Book? = books[id]
+    override fun allBooks(): List<Book> = books.values.toList()
+}
+
+//Общие интерфейсы
+interface Named { val name: String }
+interface Role { val role: String }
+interface CatalogAccess { val catalog: Catalog }
+interface Logger { fun log(message: String) }
+
+class ConsoleLogger(private val prefix: String) : Logger {
+    override fun log(message: String) = println("[$prefix] $message")
+}
+
+// Общий держатель данных (для делегирования)
+class UserData(
+    override val name: String,
+    override val catalog: Catalog,
+    override val logger: Logger
+) : Named, CatalogAccess, Logger by logger
+
+//Читатель
+class Reader(private val data: UserData) :
+    Named by data, CatalogAccess by data, Logger by data, Role {
+
+    override val role = "Читатель"
+    private val borrowed = mutableListOf<Book>()
+
+    fun borrowBook(id: Int): Boolean {
+        val book = catalog.findBook(id)
+        if (book == null) { log("Книга id=$id не найдена"); return false }
+        if (!book.isAvailable) { log("«${book.title}» уже выдана"); return false }
+        book.isAvailable = false
+        borrowed += book
+        log("$name взял «${book.title}»")
+        return true
+    }
+
+    fun returnBook(id: Int): Boolean {
+        val book = borrowed.find { it.id == id } ?: return false
+        book.isAvailable = true
+        borrowed -= book
+        log("$name вернул «${book.title}»")
+        return true
+    }
+
+    fun borrowedBooks(): List<Book> = borrowed.toList()
+}
+
+//Администратор
+class Admin(private val data: UserData) :
+    Named by data, CatalogAccess by data, Logger by data, Role {
+
+    override val role = "Администратор"
+
+    fun addBook(id: Int, title: String, author: String): Boolean {
+        val ok = catalog.addBook(Book(id, title, author))
+        if (ok) log("$name добавил «$title» ($author)")
+        else log("Книга с id=$id уже существует")
+        return ok
+    }
+
+    fun listBooks(): List<Book> = catalog.allBooks()
+}
+
+
+// ДЕМОНСТРАЦИЯ
+fun main() {
+    val catalog = InMemoryCatalog()
+    val logger = ConsoleLogger("LIB")
+
+    val admin = Admin(UserData("Иван", catalog, logger))
+    val reader = Reader(UserData("Анна", catalog, logger))
+
+    // Администратор наполняет каталог
+    admin.addBook(1, "Мастер и Маргарита", "Булгаков")
+    admin.addBook(2, "1984", "Оруэлл")
+    admin.addBook(3, "Kotlin in Action", "Jemerov")
+    admin.addBook(1, "Дубликат", "Кто-то")   // id занят — провал
+
+    println()
+
+    // Читатель берёт/возвращает книги
+    reader.borrowBook(1)
+    reader.borrowBook(2)
+    reader.borrowBook(1)                      // уже выдана
+    reader.returnBook(1)
+    reader.borrowBook(1)                      // снова свободна
+
+    println("\nКаталог:")
+    admin.listBooks().forEach {
+        val status = if (it.isAvailable) "свободна" else "выдана"
+        println("${it.id}. ${it.title} — ${it.author} [$status]")
+    }
+
+    println("\nУ Анны на руках: " + reader.borrowedBooks().joinToString { "«${it.title}»" })
+}
